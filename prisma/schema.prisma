@@ -16,4 +16,52 @@ model Bet {
   title     String
   code      String   @unique
   createdAt DateTime @default(now())
+  ownerId   String?
+
+  participants Participant[]
+  owner        User?         @relation(fields: [ownerId], references: [id])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  avatarUrl String?
+  createdAt DateTime @default(now())
+
+  participatingAt Participant[]
+  ownBets         Bet[]
+}
+
+model Game {
+  id                   String   @id @default(cuid())
+  date                 DateTime
+  firstTeamCountryCode String
+  secondTeamCountrCode String
+
+  guesses Guess[]
+}
+
+model Guess {
+  id               String   @id @default(cuid())
+  firstTeamPoints  Int
+  secondTeamPoints Int
+  createdAt        DateTime @default(now())
+  gameId           String
+  participantId    String
+
+  participant Participant @relation(fields: [participantId], references: [id])
+  game        Game        @relation(fields: [gameId], references: [id])
+}
+
+model Participant {
+  id     String @id @default(cuid())
+  userId String
+  betId  String
+
+  guesses Guess[]
+  user    User?   @relation(fields: [userId], references: [id])
+  bet     Bet     @relation(fields: [betId], references: [id])
+
+  @@unique([userId, betId])
 }
