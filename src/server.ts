@@ -2,11 +2,11 @@
 
 import Fastify from "fastify";
 import cors from "@fastify/cors";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient({
-  log: ["query"],
-});
+import { betRoutes } from "./routes/bet";
+import { authRoutes } from "./routes/auth";
+import { gameRoutes } from "./routes/game";
+import { guessRoutes } from "./routes/guess";
+import { userRoutes } from "./routes/user";
 
 async function bootstrap() {
   const fastify = Fastify({
@@ -17,10 +17,11 @@ async function bootstrap() {
     origin: true,
   });
 
-  fastify.get("/bet/total", async () => {
-    const total = await prisma.bet.count();
-    return { total };
-  });
+  await fastify.register(authRoutes);
+  await fastify.register(betRoutes);
+  await fastify.register(gameRoutes);
+  await fastify.register(guessRoutes);
+  await fastify.register(userRoutes);
 
   await fastify.listen({ port: 3333 });
 }
